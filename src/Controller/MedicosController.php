@@ -45,7 +45,7 @@ class MedicosController extends AbstractController
     }
 
     /**
-     * @Route("/medicos/{id}", methods={"DELETE"})
+     * @Route("/medicos/{id}", methods={"DELETE"}, requirements={"id"="\d+"})
      */
     public function deletar(int $id): Response
     {
@@ -60,7 +60,7 @@ class MedicosController extends AbstractController
     }
 
     /**
-     * @Route("/medicos/{id}", methods={"PUT"})
+     * @Route("/medicos/{id}", methods={"PUT"}, requirements={"id"="\d+"})
      */
     public function atualizar(int $id, Request $request): Response
     {
