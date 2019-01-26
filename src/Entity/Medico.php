@@ -10,7 +10,7 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\Entity()
  * @ORM\Table("medicos")
  */
-class Medico
+class Medico implements \JsonSerializable
 {
     /**
      * @ORM\Id()
@@ -73,5 +73,15 @@ class Medico
     {
         $this->crm = $crm;
         return $this;
+    }
+
+    public function jsonSerialize()
+    {
+        return [
+            'id' => $this->getId(),
+            'nome' => $this->getNome(),
+            'crm' => $this->getCrm(),
+            'especialidadeId' => $this->getEspecialidade()->getId()
+        ];
     }
 }
