@@ -3,17 +3,28 @@
 namespace App\Helper;
 
 use App\Entity\Medico;
+use App\Repository\EspecialidadeRepository;
 
 class MedicoFactory
 {
+    /**
+     * @var EspecialidadeRepository
+     */
+    private $especialidadeRepository;
+
+    public function __construct(EspecialidadeRepository $especialidadeRepository)
+    {
+        $this->especialidadeRepository = $especialidadeRepository;
+    }
+
     public function criarMedico(string $json): Medico
     {
         $objetoJson = json_decode($json);
-        $propriedades = get_object_vars($objetoJson);
         $medico = new Medico();
-        foreach ($propriedades as $propriedade => $valor) {
-            $medico->$propriedade = $valor;
-        }
+        $medico
+            ->setNome($objetoJson->nome)
+            ->setCrm($objetoJson->crm)
+            ->setEspecialidade($this->especialidadeRepository->find($objetoJson->especialidadeId));
 
         return $medico;
     }
