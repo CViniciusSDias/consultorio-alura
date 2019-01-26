@@ -1,0 +1,25 @@
+version: '3.7'
+services:
+    app:
+        build: .
+        networks:
+          - backend
+        volumes:
+          - .:/app
+        working_dir: /app
+        ports:
+          - 8001:8001
+        container_name: alura_php
+    mysql:
+        image: mysql:5
+        networks:
+          - backend
+        volumes:
+          - ./var/data/mysql:/var/lib/mysql
+        restart: always
+        environment:
+            MYSQL_DATABASE: consultorio_alura
+            MYSQL_USER: alura
+            MYSQL_PASSWORD: senhalura
+networks:
+  backend:
