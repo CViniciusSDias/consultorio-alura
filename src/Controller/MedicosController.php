@@ -67,8 +67,10 @@ class MedicosController extends AbstractController
         $medicoEnviado = $this->medicoFactory->criarMedico($request->getContent());
         /** @var Medico $medicoExistente */
         $medicoExistente = $this->getDoctrine()->getRepository(Medico::class)->find($id);
-        $medicoExistente->nome = $medicoEnviado->nome;
-        $medicoExistente->crm = $medicoEnviado->crm;
+        $medicoExistente->setNome($medicoEnviado->getNome());
+        $medicoExistente->setCrm($medicoEnviado->getCrm());
+        $medicoExistente->setEspecialidade($medicoEnviado->getEspecialidade());
+
         $this->getDoctrine()->getManager()->flush();
 
         return new JsonResponse($medicoExistente);
