@@ -21,5 +21,6 @@ services:
             MYSQL_DATABASE: consultorio_alura
             MYSQL_USER: alura
             MYSQL_PASSWORD: senhalura
+            MYSQL_ALLOW_EMPTY_PASSWORD: 'yes'
 networks:
   backend:

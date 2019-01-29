@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\Especialidade;
 use App\Helper\EspecialidadeFactory;
+use App\Helper\RequestDataExtractor;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -15,10 +16,15 @@ class EspecialidadesController extends AbstractController
      * @var EspecialidadeFactory
      */
     private $especialidadeFactory;
+    /**
+     * @var RequestDataExtractor
+     */
+    private $requestDataExtractor;
 
-    public function __construct(EspecialidadeFactory $especialidadeFactory)
+    public function __construct(EspecialidadeFactory $especialidadeFactory, RequestDataExtractor $requestDataExtractor)
     {
         $this->especialidadeFactory = $especialidadeFactory;
+        $this->requestDataExtractor = $requestDataExtractor;
     }
 
     /**
@@ -37,9 +43,13 @@ class EspecialidadesController extends AbstractController
     /**
      * @Route("/especialidades", name="especialidades", methods={"GET"})
      */
-    public function buscarTodas()
+    public function buscarTodas(Request $request)
     {
-        return $this->json($this->getDoctrine()->getRepository(Especialidade::class)->findAll());
+        [$queryData, $orderData] = $this->requestDataExtractor->getFilterAndOrderData($request);
+        $repository = $this->getDoctrine()->getRepository(Especialidade::class);
+        $especialidades = $repository->findBy($queryData, $orderData);
+
+        return $this->json($especialidades);
     }
 
     /**

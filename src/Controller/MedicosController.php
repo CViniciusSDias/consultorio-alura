@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\Medico;
 use App\Helper\MedicoFactory;
+use App\Helper\RequestDataExtractor;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -16,10 +17,15 @@ class MedicosController extends AbstractController
      * @var MedicoFactory
      */
     private $medicoFactory;
+    /**
+     * @var RequestDataExtractor
+     */
+    private $requestDataExtractor;
 
-    public function __construct(MedicoFactory $medicoFactory)
+    public function __construct(MedicoFactory $medicoFactory, RequestDataExtractor $requestDataExtractor)
     {
         $this->medicoFactory = $medicoFactory;
+        $this->requestDataExtractor = $requestDataExtractor;
     }
 
     /**
@@ -38,10 +44,12 @@ class MedicosController extends AbstractController
     /**
      * @Route("/medicos", methods={"GET"})
      */
-    public function buscarTodos(): Response
+    public function buscarTodos(Request $request): Response
     {
+        [$queryData, $orderData] = $this->requestDataExtractor->getFilterAndOrderData($request);
         $repository = $this->getDoctrine()->getRepository(Medico::class);
-        return new JsonResponse($repository->findAll());
+
+        return new JsonResponse($repository->findBy($queryData, $orderData));
     }
 
     /**
@@ -79,10 +87,11 @@ class MedicosController extends AbstractController
     /**
      * @Route("/especialidades/{especialidadeId}/medicos", methods={"GET"})
      */
-    public function buscarPorEspecialidade(int $especialidadeId): Response
+    public function buscarPorEspecialidade(int $especialidadeId, Request $request): Response
     {
+        $orderData = $this->requestDataExtractor->getOrderData($request);
         $repository = $this->getDoctrine()->getRepository(Medico::class);
-        $medicos = $repository->findBy(['especialidade' => $especialidadeId]);
+        $medicos = $repository->findBy(['especialidade' => $especialidadeId], $orderData);
 
         return new JsonResponse($medicos);
     }
