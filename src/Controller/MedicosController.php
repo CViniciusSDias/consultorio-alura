@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Entity\HypermidiaResponse;
 use App\Entity\Medico;
 use App\Helper\MedicoFactory;
 use App\Helper\RequestDataExtractor;
@@ -23,11 +24,15 @@ class MedicosController extends BaseController
      */
     public function buscarPorEspecialidade(int $especialidadeId, Request $request): Response
     {
+        $filterData = ['especialidade' => $especialidadeId] + $this->requestDataExtractor->getFilterData($request);
         $orderData = $this->requestDataExtractor->getOrderData($request);
-        $repository = $this->getDoctrine()->getRepository(Medico::class);
-        $medicos = $repository->findBy(['especialidade' => $especialidadeId], $orderData);
+        $paginationData = $this->requestDataExtractor->getPaginationData($request);
+        $itemsPerPage = $_ENV['ITEMS_PER_PAGE'] ?? 10;
 
-        return new JsonResponse($medicos);
+        $medicos = $this->repository->findBy($filterData, $orderData, $itemsPerPage, ($paginationData - 1) * 10);
+
+        $hypermidiaResponse = new HypermidiaResponse($medicos, true, Response::HTTP_OK, $paginationData, $itemsPerPage);
+        return $hypermidiaResponse->getResponse();
     }
 
     public function updateExistingEntity(int $id, $entity)

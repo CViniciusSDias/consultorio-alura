@@ -50,7 +50,7 @@ class Especialidade implements \JsonSerializable
                 ],
                 [
                     'rel' => 'medicos',
-                    'path' => '/medicos?especialidade=' . $this->getId()
+                    'path' => '/especialidades/' . $this->getId() . '/medicos'
                 ]
             ]
         ];
