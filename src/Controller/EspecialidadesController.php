@@ -45,9 +45,12 @@ class EspecialidadesController extends AbstractController
      */
     public function buscarTodas(Request $request)
     {
-        [$queryData, $orderData] = $this->requestDataExtractor->getFilterAndOrderData($request);
+        $filterData = $this->requestDataExtractor->getFilterData($request);
+        $orderData = $this->requestDataExtractor->getOrderData($request);
+        $paginationData = $this->requestDataExtractor->getPaginationData($request);
         $repository = $this->getDoctrine()->getRepository(Especialidade::class);
-        $especialidades = $repository->findBy($queryData, $orderData);
+        $itemsPerPage = $_ENV['ITEMS_PER_PAGE'] ?? 10;
+        $especialidades = $repository->findBy($filterData, $orderData, $itemsPerPage, ($paginationData - 1) * $itemsPerPage);
 
         return $this->json($especialidades);
     }

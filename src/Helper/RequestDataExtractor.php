@@ -6,18 +6,32 @@ use Symfony\Component\HttpFoundation\Request;
 
 class RequestDataExtractor
 {
-    public function getFilterAndOrderData(Request $request)
+    private function getUrlData(Request $request)
     {
         $queryData = $request->query->all();
-        $orderData = array_key_exists('order', $queryData) ? $queryData['order'] : [];
-        unset($queryData['order']);
+        $orderData = array_key_exists('sort', $queryData) ? $queryData['sort'] : [];
+        unset($queryData['sort']);
+        $paginationData = array_key_exists('page', $queryData) ? $queryData['page'] : [];
+        unset($queryData['page']);
 
-        return [$queryData, $orderData];
+        return [$queryData, $orderData, $paginationData];
+    }
+
+    public function getFilterData(Request $request)
+    {
+        [$filterData, , ] = $this->getUrlData($request);
+        return $filterData;
     }
 
     public function getOrderData(Request $request)
     {
-        [, $orderData] = $this->getFilterAndOrderData($request);
+        [, $orderData, ] = $this->getUrlData($request);
         return $orderData;
+    }
+
+    public function getPaginationData(Request $request)
+    {
+        [, , $paginationData] = $this->getUrlData($request);
+        return $paginationData;
     }
 }

@@ -46,10 +46,13 @@ class MedicosController extends AbstractController
      */
     public function buscarTodos(Request $request): Response
     {
-        [$queryData, $orderData] = $this->requestDataExtractor->getFilterAndOrderData($request);
+        $filterData = $this->requestDataExtractor->getFilterData($request);
+        $orderData = $this->requestDataExtractor->getOrderData($request);
+        $paginationData = $this->requestDataExtractor->getPaginationData($request);
         $repository = $this->getDoctrine()->getRepository(Medico::class);
+        $itemsPerPage = $_ENV['ITEMS_PER_PAGE'] ?? 10;
 
-        return new JsonResponse($repository->findBy($queryData, $orderData));
+        return new JsonResponse($repository->findBy($filterData, $orderData, $itemsPerPage, ($paginationData - 1) * $itemsPerPage));
     }
 
     /**
