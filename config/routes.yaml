@@ -4,6 +4,11 @@ medicos:
   methods:
     - GET
   controller: App\Controller\MedicosController::buscarTodos
+medico:
+  path: /medicos/{id}
+  methods:
+    - GET
+  controller: App\Controller\MedicosController::buscarUm
 novo_medico:
   path: /medicos
   methods:
@@ -26,6 +31,11 @@ especialidades:
   methods:
     - GET
   controller: App\Controller\EspecialidadesController::buscarTodos
+especialidade:
+  path: /especialidades/{id}
+  methods:
+    - GET
+  controller: App\Controller\EspecialidadesController::buscarUm
 nova_especialidade:
   path: /especialidades
   methods:

@@ -65,6 +65,14 @@ abstract class BaseController extends AbstractController
         return $hypermidiaResponse->getResponse();
     }
 
+    public function buscarUm(int $id)
+    {
+        $entity = $this->repository->find($id);
+        $hypermidiaResponse = new HypermidiaResponse($entity, true, Response::HTTP_OK, null);
+
+        return $hypermidiaResponse->getResponse();
+    }
+
     public function atualizar(int $id, Request $request): Response
     {
         $entity = $this->entityFactory->createEntity($request->getContent());
