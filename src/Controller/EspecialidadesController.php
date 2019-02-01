@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Especialidade;
+use App\Entity\HypermidiaResponse;
 use App\Helper\EspecialidadeFactory;
 use App\Helper\RequestDataExtractor;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -45,14 +46,26 @@ class EspecialidadesController extends AbstractController
      */
     public function buscarTodas(Request $request)
     {
-        $filterData = $this->requestDataExtractor->getFilterData($request);
-        $orderData = $this->requestDataExtractor->getOrderData($request);
-        $paginationData = $this->requestDataExtractor->getPaginationData($request);
-        $repository = $this->getDoctrine()->getRepository(Especialidade::class);
-        $itemsPerPage = $_ENV['ITEMS_PER_PAGE'] ?? 10;
-        $especialidades = $repository->findBy($filterData, $orderData, $itemsPerPage, ($paginationData - 1) * $itemsPerPage);
+        try {
+            $filterData = $this->requestDataExtractor->getFilterData($request);
+            $orderData = $this->requestDataExtractor->getOrderData($request);
+            $paginationData = $this->requestDataExtractor->getPaginationData($request);
+            $repository = $this->getDoctrine()->getRepository(Especialidade::class);
+            $itemsPerPage = $_ENV['ITEMS_PER_PAGE'] ?? 10;
 
-        return $this->json($especialidades);
+            $especialidades = $repository->findBy(
+                $filterData,
+                $orderData,
+                $itemsPerPage,
+                ($paginationData - 1) * $itemsPerPage
+            );
+
+            $hypermidiaResponse = new HypermidiaResponse($especialidades, true, Response::HTTP_OK, $paginationData, $itemsPerPage);
+        } catch (\Throwable $erro) {
+            $hypermidiaResponse = HypermidiaResponse::fromError($erro);
+        }
+
+        return $hypermidiaResponse->getResponse();
     }
 
     /**

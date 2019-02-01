@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Entity\HypermidiaResponse;
 use App\Entity\Medico;
 use App\Helper\MedicoFactory;
 use App\Helper\RequestDataExtractor;
@@ -46,19 +47,26 @@ class MedicosController extends AbstractController
      */
     public function buscarTodos(Request $request): Response
     {
-        $filterData = $this->requestDataExtractor->getFilterData($request);
-        $orderData = $this->requestDataExtractor->getOrderData($request);
-        $paginationData = $this->requestDataExtractor->getPaginationData($request);
-        $repository = $this->getDoctrine()->getRepository(Medico::class);
-        $itemsPerPage = $_ENV['ITEMS_PER_PAGE'] ?? 10;
+        try {
+            $filterData = $this->requestDataExtractor->getFilterData($request);
+            $orderData = $this->requestDataExtractor->getOrderData($request);
+            $paginationData = $this->requestDataExtractor->getPaginationData($request);
+            $repository = $this->getDoctrine()->getRepository(Medico::class);
+            $itemsPerPage = $_ENV['ITEMS_PER_PAGE'] ?? 10;
 
-        $medicos = $repository->findBy(
-            $filterData,
-            $orderData,
-            $itemsPerPage,
-            ($paginationData - 1) * $itemsPerPage
-        );
-        return new JsonResponse($medicos);
+            $medicos = $repository->findBy(
+                $filterData,
+                $orderData,
+                $itemsPerPage,
+                ($paginationData - 1) * $itemsPerPage
+            );
+
+            $hypermidiaResponse = new HypermidiaResponse($medicos, true, Response::HTTP_OK, $paginationData, $itemsPerPage);
+        } catch (\Throwable $erro) {
+            $hypermidiaResponse = HypermidiaResponse::fromError($erro);
+        }
+
+        return $hypermidiaResponse->getResponse();
     }
 
     /**
