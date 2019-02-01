@@ -65,6 +65,16 @@ abstract class BaseController extends AbstractController
         return $hypermidiaResponse->getResponse();
     }
 
+    public function atualizar(int $id, Request $request): Response
+    {
+        $entity = $this->entityFactory->createEntity($request->getContent());
+        $existingEntity = $this->updateExistingEntity($id, $entity);
+
+        $this->getDoctrine()->getManager()->flush();
+
+        return $this->json($existingEntity);
+    }
+
     public function deletar(int $id): Response
     {
         $entityManager = $this->getDoctrine()->getManager();
@@ -74,16 +84,6 @@ abstract class BaseController extends AbstractController
         $entityManager->flush();
 
         return new Response('', Response::HTTP_NO_CONTENT);
-    }
-
-    public function atualizar(int $id, Request $request): Response
-    {
-        $entity = $this->entityFactory->createEntity($request->getContent());
-        $existingEntity = $this->updateExistingEntity($id, $entity);
-
-        $this->getDoctrine()->getManager()->flush();
-
-        return $this->json($existingEntity);
     }
 
     abstract public function updateExistingEntity(int $id, $entity);
