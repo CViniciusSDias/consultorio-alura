@@ -11,7 +11,7 @@ class RequestDataExtractor
         $queryData = $request->query->all();
         $orderData = array_key_exists('sort', $queryData) ? $queryData['sort'] : [];
         unset($queryData['sort']);
-        $paginationData = array_key_exists('page', $queryData) ? $queryData['page'] : [];
+        $paginationData = array_key_exists('page', $queryData) ? $queryData['page'] : 1;
         unset($queryData['page']);
 
         return [$queryData, $orderData, $paginationData];

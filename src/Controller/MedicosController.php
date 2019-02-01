@@ -52,7 +52,13 @@ class MedicosController extends AbstractController
         $repository = $this->getDoctrine()->getRepository(Medico::class);
         $itemsPerPage = $_ENV['ITEMS_PER_PAGE'] ?? 10;
 
-        return new JsonResponse($repository->findBy($filterData, $orderData, $itemsPerPage, ($paginationData - 1) * $itemsPerPage));
+        $medicos = $repository->findBy(
+            $filterData,
+            $orderData,
+            $itemsPerPage,
+            ($paginationData - 1) * $itemsPerPage
+        );
+        return new JsonResponse($medicos);
     }
 
     /**
