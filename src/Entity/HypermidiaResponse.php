@@ -20,7 +20,7 @@ class HypermidiaResponse
      */
     private $itemsPerPage;
     /**
-     * @var array
+     * @var mixed
      */
     private $data;
     /**
@@ -28,7 +28,7 @@ class HypermidiaResponse
      */
     private $status;
 
-    public function __construct(array $data, bool $success = true, int $status = Response::HTTP_OK, ?int $page = 1, ?int $itemsPerPage = null)
+    public function __construct($data, bool $success = true, int $status = Response::HTTP_OK, ?int $page = 1, ?int $itemsPerPage = null)
     {
         $this->success = $success;
         $this->status = $status;
