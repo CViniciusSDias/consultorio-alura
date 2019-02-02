@@ -44,7 +44,7 @@ class AuthController extends AbstractController
             throw new AuthenticationException('Senha inválida');
         }
 
-        $token = JWT::encode(['username' => $user->getUsername()], $_ENV['JWT_KEY']);
+        $token = JWT::encode(['username' => $user->getUsername()], $_ENV['JWT_KEY'], 'HS256');
         return new JsonResponse([
             'access_token' => $token
         ]);
