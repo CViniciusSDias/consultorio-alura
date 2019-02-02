@@ -51,3 +51,10 @@ remover_especialidade:
   methods:
     - DELETE
   controller: App\Controller\EspecialidadesController::deletar
+
+# Auth
+login:
+  path: /login
+  methods:
+    - POST
+  controller: App\Controller\AuthController::getToken
