@@ -72,8 +72,6 @@ class JwtAuthenticator extends AbstractGuardAuthenticator
 
     public function start(Request $request, AuthenticationException $authException = null)
     {
-        var_dump('aqui');
-        exit();
     }
 
     public function supportsRememberMe()
