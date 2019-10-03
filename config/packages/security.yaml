@@ -12,6 +12,7 @@ security:
                 property: username
     firewalls:
         main:
+            pattern: ^\/(?!.*login).*$
             anonymous: ~
             logout: ~
             guard:
