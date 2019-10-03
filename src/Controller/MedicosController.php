@@ -7,6 +7,7 @@ use App\Entity\Medico;
 use App\Helper\MedicoFactory;
 use App\Helper\RequestDataExtractor;
 use App\Repository\MedicoRepository;
+use Psr\SimpleCache\CacheInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -14,9 +15,9 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class MedicosController extends BaseController
 {
-    public function __construct(MedicoFactory $medicoFactory, RequestDataExtractor $requestDataExtractor, MedicoRepository $repository)
+    public function __construct(MedicoFactory $medicoFactory, RequestDataExtractor $requestDataExtractor, MedicoRepository $repository, CacheInterface $cache)
     {
-        parent::__construct($medicoFactory, $requestDataExtractor, $repository);
+        parent::__construct($medicoFactory, $requestDataExtractor, $repository, $cache);
     }
 
     /**
@@ -44,5 +45,10 @@ class MedicosController extends BaseController
         $medicoExistente->setEspecialidade($entity->getEspecialidade());
 
         return $medicoExistente;
+    }
+
+    protected function cachePrefix(): string
+    {
+        return 'medico_';
     }
 }

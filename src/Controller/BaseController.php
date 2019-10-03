@@ -6,6 +6,7 @@ use App\Entity\HypermidiaResponse;
 use App\Helper\EntityFactoryInterface;
 use App\Helper\RequestDataExtractor;
 use Doctrine\Common\Persistence\ObjectRepository;
+use Psr\SimpleCache\CacheInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -24,12 +25,17 @@ abstract class BaseController extends AbstractController
      * @var RequestDataExtractor
      */
     protected $requestDataExtractor;
+    /**
+     * @var CacheInterface
+     */
+    private $cache;
 
-    public function __construct(EntityFactoryInterface $entityFactory, RequestDataExtractor $requestDataExtractor, ObjectRepository $repository)
+    public function __construct(EntityFactoryInterface $entityFactory, RequestDataExtractor $requestDataExtractor, ObjectRepository $repository, CacheInterface $cache)
     {
         $this->entityFactory = $entityFactory;
         $this->requestDataExtractor = $requestDataExtractor;
         $this->repository = $repository;
+        $this->cache = $cache;
     }
 
     public function novo(Request $request): Response
@@ -38,6 +44,7 @@ abstract class BaseController extends AbstractController
         $entityManager = $this->getDoctrine()->getManager();
         $entityManager->persist($entity);
         $entityManager->flush();
+        $this->cache->set($this->cachePrefix() . $entity->getId(), $entity);
 
         return $this->json($entity, Response::HTTP_CREATED);
     }
@@ -67,7 +74,9 @@ abstract class BaseController extends AbstractController
 
     public function buscarUm(int $id)
     {
-        $entity = $this->repository->find($id);
+        $entity = $this->cache->has($this->cachePrefix() . $id)
+            ? $this->cache->get($this->cachePrefix() . $id)
+            : $this->repository->find($id);
         $hypermidiaResponse = new HypermidiaResponse($entity, true, Response::HTTP_OK, null);
 
         return $hypermidiaResponse->getResponse();
@@ -80,6 +89,8 @@ abstract class BaseController extends AbstractController
 
         $this->getDoctrine()->getManager()->flush();
 
+        $this->cache->set($this->cachePrefix() . $id, $existingEntity);
+
         return $this->json($existingEntity);
     }
 
@@ -91,8 +102,11 @@ abstract class BaseController extends AbstractController
         $entityManager->remove($entity);
         $entityManager->flush();
 
+        $this->cache->delete($this->cachePrefix() . $id);
+
         return new Response('', Response::HTTP_NO_CONTENT);
     }
 
-    abstract public function updateExistingEntity(int $id, $entity);
+    abstract protected function updateExistingEntity(int $id, $entity);
+    abstract protected function cachePrefix(): string;
 }
