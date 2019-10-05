@@ -6,6 +6,7 @@ use App\Entity\HypermidiaResponse;
 use App\Helper\EntityFactoryInterface;
 use App\Helper\RequestDataExtractor;
 use Doctrine\Common\Persistence\ObjectRepository;
+use Psr\Cache\CacheItemPoolInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -24,12 +25,21 @@ abstract class BaseController extends AbstractController
      * @var RequestDataExtractor
      */
     protected $requestDataExtractor;
+    /**
+     * @var CacheItemPoolInterface
+     */
+    private $cache;
 
-    public function __construct(EntityFactoryInterface $entityFactory, RequestDataExtractor $requestDataExtractor, ObjectRepository $repository)
-    {
+    public function __construct(
+        EntityFactoryInterface $entityFactory,
+        RequestDataExtractor $requestDataExtractor,
+        ObjectRepository $repository,
+        CacheItemPoolInterface $cache
+    ) {
         $this->entityFactory = $entityFactory;
         $this->requestDataExtractor = $requestDataExtractor;
         $this->repository = $repository;
+        $this->cache = $cache;
     }
 
     public function novo(Request $request): Response
@@ -38,6 +48,12 @@ abstract class BaseController extends AbstractController
         $entityManager = $this->getDoctrine()->getManager();
         $entityManager->persist($entity);
         $entityManager->flush();
+
+        $cacheItem = $this->cache->getItem(
+            $this->cachePrefix() . $entity->getId()
+        );
+        $cacheItem->set($entity);
+        $this->cache->save($cacheItem);
 
         return $this->json($entity, Response::HTTP_CREATED);
     }
@@ -67,7 +83,9 @@ abstract class BaseController extends AbstractController
 
     public function buscarUm(int $id)
     {
-        $entity = $this->repository->find($id);
+        $entity = $this->cache->hasItem($this->cachePrefix() . $id)
+            ? $this->cache->getItem($this->cachePrefix() . $id)->get()
+            : $this->repository->find($id);
         $hypermidiaResponse = new HypermidiaResponse($entity, true, Response::HTTP_OK, null);
 
         return $hypermidiaResponse->getResponse();
@@ -80,6 +98,10 @@ abstract class BaseController extends AbstractController
 
         $this->getDoctrine()->getManager()->flush();
 
+        $cacheItem = $this->cache->getItem($this->cachePrefix() . $id);
+        $cacheItem->set($existingEntity);
+        $this->cache->save($cacheItem);
+
         return $this->json($existingEntity);
     }
 
@@ -91,8 +113,11 @@ abstract class BaseController extends AbstractController
         $entityManager->remove($entity);
         $entityManager->flush();
 
+        $this->cache->deleteItem($this->cachePrefix() . $id);
+
         return new Response('', Response::HTTP_NO_CONTENT);
     }
 
     abstract public function updateExistingEntity(int $id, $entity);
+    abstract public function cachePrefix(): string;
 }

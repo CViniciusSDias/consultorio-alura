@@ -6,12 +6,17 @@ use App\Entity\Especialidade;
 use App\Helper\EspecialidadeFactory;
 use App\Helper\RequestDataExtractor;
 use App\Repository\EspecialidadeRepository;
+use Psr\Cache\CacheItemPoolInterface;
 
 class EspecialidadesController extends BaseController
 {
-    public function __construct(EspecialidadeFactory $especialidadeFactory, RequestDataExtractor $requestDataExtractor, EspecialidadeRepository $repository)
-    {
-        parent::__construct($especialidadeFactory, $requestDataExtractor, $repository);
+    public function __construct(
+        EspecialidadeFactory $especialidadeFactory,
+        RequestDataExtractor $requestDataExtractor,
+        EspecialidadeRepository $repository,
+        CacheItemPoolInterface $cache
+    ) {
+        parent::__construct($especialidadeFactory, $requestDataExtractor, $repository, $cache);
     }
 
     public function updateExistingEntity(int $id, $entity)
@@ -21,5 +26,10 @@ class EspecialidadesController extends BaseController
         $especialidadeExistente->setDescricao($entity->getDescricao());
 
         return $especialidadeExistente;
+    }
+
+    public function cachePrefix(): string
+    {
+        return 'especialidade_';
     }
 }
