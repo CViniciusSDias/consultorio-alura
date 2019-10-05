@@ -7,6 +7,7 @@ use App\Helper\EspecialidadeFactory;
 use App\Helper\RequestDataExtractor;
 use App\Repository\EspecialidadeRepository;
 use Psr\Cache\CacheItemPoolInterface;
+use Psr\Log\LoggerInterface;
 
 class EspecialidadesController extends BaseController
 {
@@ -14,9 +15,10 @@ class EspecialidadesController extends BaseController
         EspecialidadeFactory $especialidadeFactory,
         RequestDataExtractor $requestDataExtractor,
         EspecialidadeRepository $repository,
-        CacheItemPoolInterface $cache
+        CacheItemPoolInterface $cache,
+        LoggerInterface $logger
     ) {
-        parent::__construct($especialidadeFactory, $requestDataExtractor, $repository, $cache);
+        parent::__construct($especialidadeFactory, $requestDataExtractor, $repository, $cache, $logger);
     }
 
     public function updateExistingEntity(int $id, $entity)
