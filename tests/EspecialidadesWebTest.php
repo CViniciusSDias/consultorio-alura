@@ -2,7 +2,6 @@
 
 namespace App\Tests;
 
-use phpDocumentor\Reflection\DocBlock\Tags\Var_;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
@@ -63,5 +62,14 @@ class EspecialidadesWebTest extends WebTestCase
 
         return json_decode($client->getResponse()->getContent())
             ->access_token;
+    }
+
+    public function testHtmlEspecialidades()
+    {
+        $client = self::createClient();
+        $client->request('GET', '/especialidades_html');
+
+        $this->assertSelectorTextContains('h1', 'Especialidades');
+        $this->assertSelectorExists('.especialidade');
     }
 }
